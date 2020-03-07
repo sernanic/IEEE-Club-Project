@@ -5,6 +5,7 @@
 */
 #include <SparkFun_TB6612.h> //This libary is from https://github.com/sparkfun/SparkFun_TB6612FNG_Arduino_Library
 #include <SharpIR.h>
+#include photoresistor.h
 
 #define AIN1 5 //For first driver, motors 1 (A) and 4 (B)
 #define AIN2 4
@@ -20,11 +21,7 @@ int offset = 1;
 #define SPEED 255 //between -255 and 255
 #define LIROUT A0
 #define RIROUT A1
-#define LLM 56
-#define LM 57
-#define MM 58
-#define RM 59
-#define RRM 60
+
 
 //Declare all motors accordingly
 Motor motor1 = Motor(AIN1, AIN2, PWM, offset, STBY);//motor 1 is different model than other motors
@@ -74,7 +71,7 @@ void STOP() {
   brake(motor3, motor4);
 }
 
-//Get difference between left and right IR
+// difference between left and right IR
 /*int getIR(){
   int distL = infraL.getDistance();
   int distR = infraR.getDistance();
@@ -91,30 +88,13 @@ void adjust_motors(int currentDir, int diffIR){
   motor4.drive(SPEED * currentDir, duration);
 }
 
-void getLight(){
-  lightLL=analogRead(LLM);  
-  lightL=analogRead(LM);  
-  lightM=analogRead(MM);  
-  lightR=analogRead(RM);  
-  lightRR=analogRead(RRM);  
-}
-
-void printLight(){
-  getLight();
-  Serial.print(lightLL);
-  Serial.print(lightL);
-  Serial.print(lightM);
-  Serial.print(lightR);
-  Serial.print(lightRR);
-  Serial.print("\n");
-}
 
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  //printLight();
+  printLight();
   if(i==j){//#run initial motor command
     Serial.print("initial");
     Serial.print("\n");
