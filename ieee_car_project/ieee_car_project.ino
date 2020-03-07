@@ -5,6 +5,7 @@
 */
 #include <SparkFun_TB6612.h> //This libary is from https://github.com/sparkfun/SparkFun_TB6612FNG_Arduino_Library
 #include <SharpIR.h>
+#include "car_project.h"
 
 #define AIN1 5 //For first driver, motors 1 (A) and 4 (B)
 #define AIN2 4
@@ -33,8 +34,8 @@ Motor motor3 = Motor(CIN1, CIN2, PWM, offset, STBY);
 Motor motor4 = Motor(BIN1, BIN2, PWM, offset, STBY);
 
 //Create a new instance of the library, give name infraL(model,sensor output pin)
-//SharpIR infraL( 1080, LIROUT );//model(SharpIR::GP2Y0A41SK0F)->"1080"
-//SharpIR infraR( 1080, RIROUT );
+SharpIR infraL( 1080, LIROUT );//model(SharpIR::GP2Y0A41SK0F)->"1080"
+SharpIR infraR( 1080, RIROUT );
 
 //These are the states
 const int TERMINATE = 0;
@@ -75,15 +76,15 @@ void STOP() {
 }
 
 //Get difference between left and right IR
-/*int getIR(){
+int getIR(){
   int distL = infraL.getDistance();
   int distR = infraR.getDistance();
   return distL - distR;
   /*Positive -> Left side is closer to wall
     Negative -> Right side is closer to wall
-    Correct with motors 3/4 spinning and motors 1/2 inactive 
+    Correct with motors 3/4 spinning and motors 1/2 inactive*/
 }
-*/
+
 //Move motors; dependent to changeDirection and difference in IR
 void adjust_motors(int currentDir, int diffIR){
   int duration = 10 * diffIR;
@@ -142,30 +143,3 @@ void loop() {
   currPi=piAr[i];
   prevPi=piAr[j];
 }
-/*
-void loop() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= interval) {
-    
-    // save the last time
-    previousMillis = currentMillis;
-
-    if (changeDirection == RIGHT) {
-      
-      //Run right
-      simultaneous_motors(-1, -1, 1, 1);
-      changeDirection = LEFT;
-    }
-    else if (changeDirection == LEFT)
-    {
-      //Run left
-      simultaneous_motors(1, 1, -1, -1);
-      changeDirection = TERMINATE;
-    }
-    else {
-      STOP();
-      changeDirection = RIGHT;
-    }
-  }
-}
-*/
