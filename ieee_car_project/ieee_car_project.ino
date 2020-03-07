@@ -4,14 +4,31 @@
  * - Arduino pin A0 -> Sensor's pin 3 (Output)
 */
 #include <SparkFun_TB6612.h> //This libary is from https://github.com/sparkfun/SparkFun_TB6612FNG_Arduino_Library
-//#include <SharpIR.h>
+// #include <SharpIR.h>
 #include "photoresistor.h"
-#include "motors.h"
+#include "MOTORS.h"
 
+ #define AIN1 5 //For first driver, motors 1 (A) and 4 (B)
+#define AIN2 4
+#define BIN1 7
+#define BIN2 8
+#define CIN1 9 //For second driver, motors 2 (C) and 3 (D)
+#define CIN2 10
+#define DIN1 11
+#define DIN2 12
+#define PWM 6 //this is a common PWM
+#define STBY 13
+#define offset 1
+#define SPEED 255 //between -255 and 255
 #define LIROUT A0
 #define RIROUT A1
 
 
+//Declare all motors accordingly
+Motor motor1 = Motor(AIN1, AIN2, PWM, offset, STBY);//motor 1 is different model than other motors
+Motor motor2 = Motor(DIN1, DIN2, PWM, offset, STBY);
+Motor motor3 = Motor(CIN1, CIN2, PWM, offset, STBY);
+Motor motor4 = Motor(BIN1, BIN2, PWM, offset, STBY);
 
 //Create a new instance of the library, give name infraL(model,sensor output pin)
 //SharpIR infraL( 1080, LIROUT );//model(SharpIR::GP2Y0A41SK0F)->"1080"
@@ -39,7 +56,21 @@ int currPi,prevPi = piAr [0];
 const long interval = 500;//Milliseconds
 unsigned long previousMillis = 0;
 
+/*The simultaneous_motors function make all motors 
+work cohesively and simultaneously*/
+void simultaneous_motors(int direction1, int direction2, int direction3, int direction4) {
+  motor1.drive(SPEED * direction1);//.drive(speed, optional duration)
+  motor2.drive(SPEED * direction2);
+  motor3.drive(SPEED * direction3);
+  motor4.drive(SPEED * direction4);
+}
 
+/* The STOP function, as the name implies,
+ simultaneously halts all motors*/
+void STOP() {
+  brake(motor1, motor2);
+  brake(motor3, motor4);
+}
 
 // difference between left and right IR
 /*int getIR(){
@@ -51,13 +82,18 @@ unsigned long previousMillis = 0;
     Correct with motors 3/4 spinning and motors 1/2 inactive 
 }
 */
+//Move motors; dependent to changeDirection and difference in IR
+void adjust_motors(int currentDir, int diffIR){
+  int duration = 10 * diffIR;
+  motor3.drive(SPEED * currentDir, duration);
+  motor4.drive(SPEED * currentDir, duration);
+}
 
-
-
+photoresistor photoResistor;
+MOTORS motorDrive;
 void setup() {
   Serial.begin(9600);
-  photoresistor photoResistor;
-  MOTORS Motors;
+  
 }
 
 void loop() {
